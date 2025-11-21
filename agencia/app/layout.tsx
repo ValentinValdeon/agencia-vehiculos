@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const navigationItems = [
-  { name: 'Inicio', icon: Home, href: '/', badge: null },
+  { name: 'Cargar Vehiculo', icon: Car, href: '/', badge: null },
   { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
   { name: 'Financiamiento', icon: CreditCard, href: '/financiamiento', badge: null },
   { name: 'Mensajes', icon: MessageSquare, href: '/mensajes', badge: '3' },
@@ -92,31 +92,12 @@ export default function RootLayout({
                 </a>
               ))}
             </nav>
-
-            {/* User Profile Card */}
-            <div className="p-4 border-t border-gray-200">
-              <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-4 text-white">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold">
-                    FM
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Francisco</p>
-                    <p className="text-xs text-gray-400">Vendedor Premium</p>
-                  </div>
-                  <Bell className="w-4 h-4 text-gray-400" />
-                </div>
-                <button className="w-full bg-white/10 hover:bg-white/20 rounded-lg py-2 text-xs font-medium transition-colors">
-                  Ver Perfil
-                </button>
-              </div>
-            </div>
           </aside>
 
           {/* Main Content */}
           <div className="flex-1 ml-72 flex flex-col">
-            <main className="flex-1 p-8 bg-gray-50">
-              
+            <main className="flex p-8 bg-gray-50 justify-center items-center">
+              {children}
             </main>
 
             {/* Footer Minimalista */}
