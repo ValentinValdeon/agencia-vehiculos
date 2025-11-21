@@ -36,7 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen bg-white">
+        <div className="flex h-screen bg-gray">
           {/* Aside - Sidebar Minimalista */}
           <aside className="w-72 bg-white border-r border-gray-200 fixed h-full flex flex-col">
             {/* Logo Area */}
