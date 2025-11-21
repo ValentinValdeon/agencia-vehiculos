@@ -5,7 +5,7 @@ import { User, Home, MapPin, Mail, Phone, Calendar, Hash, CreditCard } from 'luc
 
 
 const maritalStatuses = [
-  'Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión Civil'
+  'Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a'
 ];
 
 export default function ClientForm() {
