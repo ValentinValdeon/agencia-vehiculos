@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Home, Car, CreditCard, MessageSquare, User, Search, Bell, Menu } from 'lucide-react';
+import { Car } from 'lucide-react';
+import Sidebar from './components/sidebar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,81 +19,20 @@ export const metadata: Metadata = {
   description: "La mejor selección de vehículos con garantía y financiación",
 };
 
-const navigationItems = [
-  { name: 'Cargar Vehiculo', icon: Car, href: '/', badge: null },
-  { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
-  { name: 'Financiamiento', icon: CreditCard, href: '/financiamiento', badge: null },
-  { name: 'Mensajes', icon: MessageSquare, href: '/mensajes', badge: '3' },
-  { name: 'Mi Cuenta', icon: User, href: '/cuenta', badge: null },
-];
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen bg-white">
-          {/* Aside - Sidebar Minimalista */}
-          <aside className="w-72 bg-white border-r border-gray-200 fixed h-full flex flex-col">
-            {/* Logo Area */}
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 opacity-90"></div>
-                    <Car className="w-7 h-7 text-white relative z-10" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-black text-gray-900">FRAN</h1>
-                    <p className="text-xs font-semibold text-red-600 tracking-wider">MOTORS</p>
-                  </div>
-                </div>
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Menu className="w-5 h-5 text-gray-600" />
-                </button>
-              </div>
+        <div className="flex h-screen bg-gray">
 
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Buscar vehículo..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-1">
-              {navigationItems.map((item, index) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                    index === 0
-                      ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="flex-1 font-medium">{item.name}</span>
-                  {item.badge && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      index === 0 ? 'bg-white text-red-600' : 'bg-red-100 text-red-600'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </a>
-              ))}
-            </nav>
-          </aside>
+          <Sidebar />
 
           {/* Main Content */}
           <div className="flex-1 ml-72 flex flex-col">
