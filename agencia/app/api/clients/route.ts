@@ -35,8 +35,11 @@ export async function POST(request: Request) {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         nombre, apellido, domicilio, localidad, codigo_postal_int, provincia, 
-        telefono, nacimiento, cuil, dni_int, tipo_dni, mail, estado_civil
+        telefono, nacimiento, cuil, dni_int, tipo_dni, mail, estado_civil 
       ]
+      // si el estad civil eta casado te tien que dejar cargar los datos del conyuge los cuales son: nombre, apellido, dni, tipo de dni
+      // opcion cargar una foto del dni del titular y conyuge si hace falta 
+      
     );
 
     return NextResponse.json({
