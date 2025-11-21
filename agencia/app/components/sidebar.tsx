@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Car, Menu, Search, CreditCard, MessageSquare, User } from "lucide-react";
+import { act } from "react";
 
 const navigationItems = [
   { name: 'Cargar Vehículo', icon: Car, href: '/vehiculo/create', badge: null },
@@ -60,7 +61,7 @@ export default function Sidebar() {
               className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 active
                   ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
-                  : "text-gray-700 hover:bg-gray-50"
+                  : "text-gray-700 hover:bg-red-200"
               }`}
             >
               <item.icon className="w-5 h-5" />
