@@ -7,7 +7,7 @@ import { Car, Menu, Search, CreditCard, MessageSquare, User } from "lucide-react
 const navigationItems = [
   { name: 'Cargar Vehículo', icon: Car, href: '/vehiculo/create', badge: null },
   { name: 'Ingresar Cliente', icon: User, href: '/client/create', badge: null },
-  { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
+  { name: 'Mostrar Clientes', icon: User, href: '/client/show', badge: null },
   { name: 'Financiamiento', icon: CreditCard, href: '/financiamiento', badge: null },
   { name: 'Mensajes', icon: MessageSquare, href: '/mensajes', badge: '3' },
   { name: 'Mi Cuenta', icon: User, href: '/cuenta', badge: null },

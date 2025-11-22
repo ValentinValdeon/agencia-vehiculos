@@ -23,6 +23,12 @@ export default function ClientForm() {
     tipo_dni: 'DNI',
     mail: '',
     estado_civil: maritalStatuses[0],
+    //campos de conyuge
+    conyuge_nombre: '',
+    conyuge_apellido: '',
+    conyuge_tipo_dni: 'DNI',
+    conyuge_dni: '',
+    conyuge_nacimiento: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -57,19 +63,24 @@ export default function ClientForm() {
         });
 
         setFormData({
-          nombre: '', 
-          apellido: '', 
-          domicilio: '', 
-          localidad: '', 
-          codigo_postal: '',
-          provincia: '', 
-          telefono: '', 
-          nacimiento: '', 
-          cuil: '', 
-          dni: '',
-          tipo_dni: 'DNI', 
-          mail: '', 
-          estado_civil: maritalStatuses[0],
+            nombre: '', 
+            apellido: '', 
+            domicilio: '', 
+            localidad: '', 
+            codigo_postal: '',
+            provincia: '', 
+            telefono: '', 
+            nacimiento: '', 
+            cuil: '', 
+            dni: '',
+            tipo_dni: 'DNI', 
+            mail: '', 
+            estado_civil: maritalStatuses[0],
+            conyuge_nombre: '',
+            conyuge_apellido: '',
+            conyuge_tipo_dni: 'DNI',
+            conyuge_dni: '',
+            conyuge_nacimiento: '',
         });
       } else {
         setMessage({ 
@@ -260,6 +271,109 @@ export default function ClientForm() {
             </div>
           </div>
 
+          {/* ---- DATOS DEL CÓNYUGE (solo si está casado) ---- */}
+        {formData.estado_civil === "Casado/a" && (
+        <>
+            <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-2 mt-6">
+            Datos del Cónyuge
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {/* Nombre del Cónyuge */}
+            <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Nombre del Cónyuge
+                </label>
+                <div className="relative">
+                <User className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                    type="text"
+                    name="conyuge_nombre"
+                    value={formData.conyuge_nombre}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+                </div>
+            </div>
+
+            {/* Apellido del Cónyuge */}
+            <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Apellido del Cónyuge
+                </label>
+                <div className="relative">
+                <User className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                    type="text"
+                    name="conyuge_apellido"
+                    value={formData.conyuge_apellido}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+                </div>
+            </div>
+
+            {/* Tipo Documento Cónyuge */}
+            <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Tipo de Documento (Cónyuge)
+                </label>
+                <div className="relative">
+                <CreditCard className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <select
+                    name="conyuge_tipo_dni"
+                    value={formData.conyuge_tipo_dni}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl"
+                >
+                    <option value="DNI">DNI</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                    <option value="LE">LE</option>
+                </select>
+                </div>
+            </div>
+
+            {/* DNI Cónyuge */}
+            <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                DNI del Cónyuge
+                </label>
+                <div className="relative">
+                <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                    type="text"
+                    inputMode="numeric"
+                    name="conyuge_dni"
+                    value={formData.conyuge_dni}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+                </div>
+            </div>
+
+            {/* Fecha nacimiento Cónyuge */}
+            <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Fecha de Nacimiento (Cónyuge)
+                </label>
+                <div className="relative">
+                <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                    type="date"
+                    name="conyuge_nacimiento"
+                    value={formData.conyuge_nacimiento}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+                </div>
+            </div>
+
+            </div>
+        </>
+        )}
+
+
           {/* ---- DOMICILIO ---- */}
           <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-2 mt-4">Domicilio</h3>
 
@@ -349,10 +463,24 @@ export default function ClientForm() {
             <button
               type="button"
               onClick={() => setFormData({
-                nombre: "", apellido: "", domicilio: "", localidad: "",
-                codigo_postal: "", provincia: "", telefono: "", nacimiento: "",
-                cuil: "", dni: "", tipo_dni: "DNI", mail: "",
-                estado_civil: maritalStatuses[0],
+                    nombre: "", 
+                    apellido: "", 
+                    domicilio: "",
+                    localidad: "",
+                    codigo_postal: "",
+                    provincia: "",
+                    telefono: "", 
+                    nacimiento: "",
+                    cuil: "", 
+                    dni: "", 
+                    tipo_dni: "DNI", 
+                    mail: "",
+                    estado_civil: maritalStatuses[0],
+                    conyuge_nombre: '',
+                    conyuge_apellido: '',
+                    conyuge_tipo_dni: 'DNI',
+                    conyuge_dni: '',
+                    conyuge_nacimiento: '',
               })}
               className="px-6 py-3 text-gray-700 border border-gray-200 rounded-xl"
             >

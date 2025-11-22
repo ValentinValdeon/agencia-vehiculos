@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; 
+import { pool } from "@/lib/db";
+
 
 export async function POST(request: Request) {
   try {
@@ -8,48 +9,51 @@ export async function POST(request: Request) {
     const { 
       nombre, apellido, domicilio, localidad, codigo_postal, 
       provincia, telefono, nacimiento, cuil, dni, 
-      tipo_dni, mail, estado_civil 
+      tipo_dni, mail, estado_civil,
+      //campos de conyuge
+      conyuge_nombre, conyuge_apellido, conyuge_tipo_dni, conyuge_dni, conyuge_nacimiento
     } = body;
 
-    // Validación básica de campos obligatorios (ajusta según tus reglas)
-    
-    if (!nombre || !apellido || !dni || !cuil || !nacimiento) {
-        return NextResponse.json(
-            { 
-            error: "Faltan campos obligatorios" 
-            },
-            { status: 400 }
-        );
+    if (!nombre || !apellido || !dni || !mail ) {
+      return NextResponse.json(
+        { error: "Faltan campos obligatorios" },
+        { status: 400 }
+      );
     }
     
-    // Convertir DNI y Código Postal a números (si la columna en la BD es INT)
     const dni_int = parseInt(dni);
     const codigo_postal_int = parseInt(codigo_postal);
 
-    // Consulta SQL para insertar el nuevo cliente
+    //si hay DNI de cónyuge, convertirlo, sino NULL
+    const conyuge_dni_int = conyuge_dni ? parseInt(conyuge_dni) : null;
+    //si conyuge_nacimiento viene vacio, lo pasamos como null
+    const conyuge_nac_val = conyuge_nacimiento ? conyuge_nacimiento : null;
+
     const [result] = await pool.query(
       `INSERT INTO client (
         nombre, apellido, domicilio, localidad, codigo_postal, provincia, 
-        telefono, nacimiento, cuil, dni, tipo_dni, mail, estado_civil
+        telefono, nacimiento, cuil, dni, tipo_dni, mail, estado_civil,
+        conyuge_nombre, conyuge_apellido, conyuge_tipo_dni, conyuge_dni, conyuge_nacimiento
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         nombre, apellido, domicilio, localidad, codigo_postal_int, provincia, 
-        telefono, nacimiento, cuil, dni_int, tipo_dni, mail, estado_civil 
+        telefono, nacimiento, cuil, dni_int, tipo_dni, mail, estado_civil,
+        conyuge_nombre || null, 
+        conyuge_apellido || null, 
+        conyuge_tipo_dni || null, 
+        conyuge_dni_int, 
+        conyuge_nac_val
       ]
-      // si el estad civil eta casado te tien que dejar cargar los datos del conyuge los cuales son: nombre, apellido, dni, tipo de dni
-      // opcion cargar una foto del dni del titular y conyuge si hace falta 
-      
     );
 
     return NextResponse.json({
-      message: "Cliente creado exitosamente",
+      message: "Cliente registrado exitosamente",
       id: (result as any).insertId
     });
 
   } catch (err: any) {
     console.error("Error al insertar cliente:", err);
-    // 1062 es el código de error de MySQL para 'Duplicate entry' (ej. DNI repetido)
     if (err.errno === 1062) {
          return NextResponse.json(
              { error: "El cliente ya existe (DNI o CUIL duplicado)." },
@@ -57,7 +61,20 @@ export async function POST(request: Request) {
          );
     }
     return NextResponse.json(
-      { error: "Error interno del servidor al procesar la solicitud." },
+      { error: "Error interno del servidor." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const [rows] = await pool.query("SELECT * FROM client ORDER BY id DESC");
+    return NextResponse.json(rows);
+  } catch (error: any) {
+    console.error("Error al obtener clientes:", error);
+    return NextResponse.json(
+      { error: "Error al obtener clientes" },
       { status: 500 }
     );
   }
