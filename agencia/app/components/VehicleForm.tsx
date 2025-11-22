@@ -1,26 +1,50 @@
 'use client';
 
 import { useState } from 'react';
-import { Car, Hash, Palette, Tag, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Car, Hash, Palette, Tag, ArrowRight, CheckCircle2, AlertCircle, DollarSign, Calendar, FileText, CheckSquare } from 'lucide-react';
 
 export default function VehicleForm() {
   const [formData, setFormData] = useState({
-    patente: '',
+    condicion: 'NUEVO',
     marca: '',
     modelo: '',
+    anio: '',
     color: '',
+    precio: '',
+    numero_motor: '',
+    numero_chasis: '',
+    vin: '',
+    // Campos exclusivos de Usados
+    dominio: '',
+    check_cedula: false,
+    check_info_dominio: false,
+    check_info_multa: false,
+    check_titulo: false,
+    check_08: false,
+    check_libre_deuda: false,
+    check_peritaje: false,
+    check_consignacion: false,
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [focusedField, setFocusedField] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +53,7 @@ export default function VehicleForm() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('/api/vehicles', {
+      const response = await fetch('/api/vehiculos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,16 +68,31 @@ export default function VehicleForm() {
           type: 'success', 
           text: '¡Vehículo registrado exitosamente!' 
         });
+        // Limpiar formulario
         setFormData({
-          patente: '',
+          condicion: 'NUEVO',
           marca: '',
           modelo: '',
+          anio: '',
           color: '',
+          precio: '',
+          numero_motor: '',
+          numero_chasis: '',
+          vin: '',
+          dominio: '',
+          check_cedula: false,
+          check_info_dominio: false,
+          check_info_multa: false,
+          check_titulo: false,
+          check_08: false,
+          check_libre_deuda: false,
+          check_peritaje: false,
+          check_consignacion: false,
         });
       } else {
         setMessage({ 
           type: 'error', 
-          text: data.message || 'Error al registrar el vehículo' 
+          text: data.error || 'Error al registrar el vehículo' 
         });
       }
     } catch (error) {
@@ -66,8 +105,14 @@ export default function VehicleForm() {
     }
   };
 
-  const progress = Object.values(formData).filter(val => val !== '').length;
-  const progressPercent = (progress / 4) * 100;
+  const isUsado = formData.condicion === 'USADO';
+
+  // Calcular progreso (campos obligatorios)
+  const requiredFields = ['marca', 'modelo', 'anio', 'color', 'precio', 'vin'];
+  if (isUsado) requiredFields.push('dominio');
+  
+  const filledRequired = requiredFields.filter(field => formData[field as keyof typeof formData] !== '').length;
+  const progressPercent = (filledRequired / requiredFields.length) * 100;
 
   return (
     <div className="flex gap-8 h-full">
@@ -87,11 +132,40 @@ export default function VehicleForm() {
             </p>
           </div>
 
+          {/* Condición Selector */}
+          <div className="mb-8">
+            <label className="block text-sm font-bold text-gray-900 mb-3">Condición del Vehículo</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, condicion: 'NUEVO' }))}
+                className={`py-3 px-4 rounded-xl font-bold transition-all ${
+                  formData.condicion === 'NUEVO'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                NUEVO
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, condicion: 'USADO' }))}
+                className={`py-3 px-4 rounded-xl font-bold transition-all ${
+                  formData.condicion === 'USADO'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                USADO
+              </button>
+            </div>
+          </div>
+
           {/* Progress Bar */}
           <div className="mt-12">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-900">Progreso del formulario</span>
-              <span className="text-sm font-bold text-red-600">{progress}/4</span>
+              <span className="text-sm font-bold text-red-600">{filledRequired}/{requiredFields.length}</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
               <div 
@@ -100,7 +174,7 @@ export default function VehicleForm() {
               ></div>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              {progress === 4 ? '¡Listo para enviar!' : `Faltan ${4 - progress} campos`}
+              {filledRequired === requiredFields.length ? '¡Listo para enviar!' : `Faltan ${requiredFields.length - filledRequired} campos obligatorios`}
             </p>
           </div>
         </div>
@@ -118,12 +192,12 @@ export default function VehicleForm() {
           
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
-              <p className="text-xs text-gray-600 mb-1">Disponibles</p>
-              <p className="text-2xl font-bold text-gray-900">89</p>
+              <p className="text-xs text-gray-600 mb-1">Nuevos</p>
+              <p className="text-2xl font-bold text-gray-900">53</p>
             </div>
             <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
-              <p className="text-xs text-gray-600 mb-1">Este mes</p>
-              <p className="text-2xl font-bold text-red-600">+18</p>
+              <p className="text-xs text-gray-600 mb-1">Usados</p>
+              <p className="text-2xl font-bold text-red-600">89</p>
             </div>
           </div>
         </div>
@@ -134,124 +208,332 @@ export default function VehicleForm() {
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <form onSubmit={handleSubmit} className="p-10">
             <div className="space-y-6">
-              {/* Patente */}
-              <div className="group">
-                <label htmlFor="patente" className="block text-sm font-bold text-gray-900 mb-3 transition-colors">
-                  Patente del Vehículo
-                </label>
-                <div className="relative">
-                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    focusedField === 'patente' ? 'text-red-600 scale-110' : 'text-gray-400'
-                  }`}>
-                    <Hash className="w-5 h-5" />
+              
+              {/* DATOS BÁSICOS */}
+              <div className="mb-8">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                    <Car className="w-5 h-5 text-red-600" />
                   </div>
-                  <input
-                    type="text"
-                    id="patente"
-                    name="patente"
-                    value={formData.patente}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('patente')}
-                    onBlur={() => setFocusedField('')}
-                    placeholder="Ej: ABC123"
-                    required
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                  />
-                  {formData.patente && (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
-                  )}
+                  <h3 className="text-xl font-black text-gray-900">Información Básica</h3>
                 </div>
-              </div>
 
-              {/* Marca & Modelo - Grid */}
-              <div className="grid grid-cols-2 gap-6">
-                {/* Marca */}
-                <div className="group">
-                  <label htmlFor="marca" className="block text-sm font-bold text-gray-900 mb-3">
-                    Marca
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                      focusedField === 'marca' ? 'text-red-600 scale-110' : 'text-gray-400'
-                    }`}>
-                      <Car className="w-5 h-5" />
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Marca */}
+                  <div className="group">
+                    <label htmlFor="marca" className="block text-sm font-bold text-gray-900 mb-3">
+                      Marca <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'marca' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Car className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="marca"
+                        name="marca"
+                        value={formData.marca}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('marca')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Ej: Toyota"
+                        required
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.marca && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
                     </div>
-                    <input
-                      type="text"
-                      id="marca"
-                      name="marca"
-                      value={formData.marca}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('marca')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="Ej: Toyota"
-                      required
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                    />
-                    {formData.marca && (
-                      <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
-                    )}
                   </div>
-                </div>
 
-                {/* Modelo */}
-                <div className="group">
-                  <label htmlFor="modelo" className="block text-sm font-bold text-gray-900 mb-3">
-                    Modelo
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                      focusedField === 'modelo' ? 'text-red-600 scale-110' : 'text-gray-400'
-                    }`}>
-                      <Tag className="w-5 h-5" />
+                  {/* Modelo */}
+                  <div className="group">
+                    <label htmlFor="modelo" className="block text-sm font-bold text-gray-900 mb-3">
+                      Modelo <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'modelo' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Tag className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="modelo"
+                        name="modelo"
+                        value={formData.modelo}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('modelo')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Ej: Corolla"
+                        required
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.modelo && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
                     </div>
-                    <input
-                      type="text"
-                      id="modelo"
-                      name="modelo"
-                      value={formData.modelo}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('modelo')}
-                      onBlur={() => setFocusedField('')}
-                      placeholder="Ej: Corolla"
-                      required
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                    />
-                    {formData.modelo && (
-                      <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
-                    )}
+                  </div>
+
+                  {/* Año */}
+                  <div className="group">
+                    <label htmlFor="anio" className="block text-sm font-bold text-gray-900 mb-3">
+                      Año <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'anio' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="number"
+                        id="anio"
+                        name="anio"
+                        value={formData.anio}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('anio')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="2024"
+                        required
+                        min="1900"
+                        max="2099"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.anio && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div className="group">
+                    <label htmlFor="color" className="block text-sm font-bold text-gray-900 mb-3">
+                      Color <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'color' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Palette className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="color"
+                        name="color"
+                        value={formData.color}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('color')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Ej: Blanco Perlado"
+                        required
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.color && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Precio */}
+                  <div className="group col-span-2">
+                    <label htmlFor="precio" className="block text-sm font-bold text-gray-900 mb-3">
+                      Precio <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'precio' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <DollarSign className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="number"
+                        id="precio"
+                        name="precio"
+                        value={formData.precio}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('precio')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="15000000"
+                        required
+                        step="0.01"
+                        min="0"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.precio && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Color */}
-              <div className="group">
-                <label htmlFor="color" className="block text-sm font-bold text-gray-900 mb-3">
-                  Color
-                </label>
-                <div className="relative">
-                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    focusedField === 'color' ? 'text-red-600 scale-110' : 'text-gray-400'
-                  }`}>
-                    <Palette className="w-5 h-5" />
+              {/* IDENTIFICACIÓN */}
+              <div className="mb-8">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-red-600" />
                   </div>
-                  <input
-                    type="text"
-                    id="color"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('color')}
-                    onBlur={() => setFocusedField('')}
-                    placeholder="Ej: Blanco Perlado"
-                    required
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                  />
-                  {formData.color && (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
-                  )}
+                  <h3 className="text-xl font-black text-gray-900">Identificación del Vehículo</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  {/* VIN */}
+                  <div className="group col-span-2">
+                    <label htmlFor="vin" className="block text-sm font-bold text-gray-900 mb-3">
+                      VIN (Número de Identificación) <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'vin' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Hash className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="vin"
+                        name="vin"
+                        value={formData.vin}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('vin')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="1HGBH41JXMN109186"
+                        required
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.vin && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Número de Motor */}
+                  <div className="group">
+                    <label htmlFor="numero_motor" className="block text-sm font-bold text-gray-900 mb-3">
+                      Número de Motor
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'numero_motor' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Hash className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="numero_motor"
+                        name="numero_motor"
+                        value={formData.numero_motor}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('numero_motor')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Opcional"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Número de Chasis */}
+                  <div className="group">
+                    <label htmlFor="numero_chasis" className="block text-sm font-bold text-gray-900 mb-3">
+                      Número de Chasis
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'numero_chasis' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Hash className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="numero_chasis"
+                        name="numero_chasis"
+                        value={formData.numero_chasis}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('numero_chasis')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="Opcional"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* CAMPOS EXCLUSIVOS DE USADO */}
+              {isUsado && (
+                <div className="mb-8 border-2 border-red-200 rounded-3xl p-8 bg-red-50/30 animate-slide-in">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
+                      <CheckSquare className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-black text-gray-900">Información de Vehículo Usado</h3>
+                  </div>
+
+                  {/* Dominio/Patente */}
+                  <div className="group mb-6">
+                    <label htmlFor="dominio" className="block text-sm font-bold text-gray-900 mb-3">
+                      Dominio / Patente <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                        focusedField === 'dominio' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                        <Hash className="w-5 h-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="dominio"
+                        name="dominio"
+                        value={formData.dominio}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('dominio')}
+                        onBlur={() => setFocusedField('')}
+                        placeholder="ABC123"
+                        required={isUsado}
+                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 transition-all duration-300 hover:border-gray-300"
+                      />
+                      {formData.dominio && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Checklist de Documentación */}
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-4">Documentación Verificada</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { name: 'check_cedula', label: 'Cédula Verde/Azul' },
+                        { name: 'check_info_dominio', label: 'Info de Dominio' },
+                        { name: 'check_info_multa', label: 'Info de Multas' },
+                        { name: 'check_titulo', label: 'Título de Propiedad' },
+                        { name: 'check_08', label: 'Formulario 08' },
+                        { name: 'check_libre_deuda', label: 'Libre Deuda' },
+                        { name: 'check_peritaje', label: 'Peritaje' },
+                        { name: 'check_consignacion', label: 'Consignación' },
+                      ].map((check) => (
+                        <label
+                          key={check.name}
+                          className="flex items-center space-x-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-red-300 cursor-pointer transition-all group"
+                        >
+                          <input
+                            type="checkbox"
+                            name={check.name}
+                            checked={formData[check.name as keyof typeof formData] as boolean}
+                            onChange={handleChange}
+                            className="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                          />
+                          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                            {check.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Message */}
               {message.text && (
@@ -277,7 +559,7 @@ export default function VehicleForm() {
               <div className="flex items-center gap-4 pt-4">
                 <button
                   type="submit"
-                  disabled={loading || progress < 4}
+                  disabled={loading || filledRequired < requiredFields.length}
                   className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-red-600/50 disabled:shadow-none hover:scale-[1.02] active:scale-[0.98] group"
                 >
                   <span className="flex items-center justify-center">
@@ -300,7 +582,26 @@ export default function VehicleForm() {
                 <button
                   type="button"
                   onClick={() => {
-                    setFormData({ patente: '', marca: '', modelo: '', color: '' });
+                    setFormData({
+                      condicion: 'NUEVO',
+                      marca: '',
+                      modelo: '',
+                      anio: '',
+                      color: '',
+                      precio: '',
+                      numero_motor: '',
+                      numero_chasis: '',
+                      vin: '',
+                      dominio: '',
+                      check_cedula: false,
+                      check_info_dominio: false,
+                      check_info_multa: false,
+                      check_titulo: false,
+                      check_08: false,
+                      check_libre_deuda: false,
+                      check_peritaje: false,
+                      check_consignacion: false,
+                    });
                     setMessage({ type: '', text: '' });
                   }}
                   className="px-8 py-4 text-gray-700 hover:bg-gray-100 font-bold rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
@@ -315,7 +616,7 @@ export default function VehicleForm() {
         {/* Info Card */}
         <div className="mt-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
           <p className="text-sm text-gray-700">
-            <span className="font-bold text-gray-900">💡 Recordatorio:</span> Verifica que todos los datos sean correctos antes de enviar. La patente debe coincidir con la documentación oficial del vehículo.
+            <span className="font-bold text-gray-900">💡 Recordatorio:</span> Verifica que todos los datos sean correctos antes de enviar. {isUsado ? 'Para vehículos usados, el dominio/patente es obligatorio.' : 'El VIN es obligatorio para todos los vehículos.'}
           </p>
         </div>
       </div>
@@ -354,6 +655,17 @@ export default function VehicleForm() {
           }
         }
 
+        @keyframes slide-in {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
         }
@@ -364,6 +676,10 @@ export default function VehicleForm() {
 
         .animate-slide-up {
           animation: slide-up 0.3s ease-out;
+        }
+
+        .animate-slide-in {
+          animation: slide-in 0.4s ease-out;
         }
       `}</style>
     </div>
