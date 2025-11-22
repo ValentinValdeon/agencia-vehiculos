@@ -108,17 +108,19 @@ export async function POST(request: Request) {
 }
 
 // READ
-
 export async function GET() {
   try {
-    const [rows] = await pool.query("SELECT * FROM vehiculo ORDER BY created_at DESC");
-    
+    const result = await pool.query("SELECT * FROM vehiculo ORDER BY created_at DESC");
+
+    const rows = result[0]; // forzamos el tipo
+
     return NextResponse.json(rows);
   } catch (error: any) {
     console.error("Error al obtener los vehículos:", error);
     return NextResponse.json(
-      { error: "Error al obtener la lista de vehículos" }, 
+      { error: "Error al obtener la lista de vehículos" },
       { status: 500 }
     );
   }
 }
+

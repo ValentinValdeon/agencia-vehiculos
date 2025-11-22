@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, Menu, Search, CreditCard, MessageSquare, User } from "lucide-react";
+import { Car, Menu, Search, CreditCard, MessageSquare, User, UserPlus, ListChevronsUpDown} from "lucide-react";
 import { act } from "react";
 
 const navigationItems = [
-  { name: 'Cargar Vehículo', icon: Car, href: '/vehiculo/create', badge: null },
-  { name: 'Ingresar Cliente', icon: User, href: '/client/create', badge: null },
+  { name: 'Cargar Vehículo', icon: Car, href: '/vehicle/create', badge: null },
+  { name: 'Ingresar Cliente', icon: UserPlus, href: '/client/create', badge: null },
   { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
-  { name: 'Financiamiento', icon: CreditCard, href: '/financiamiento', badge: null },
+  { name: 'Tabla Vehiculos', icon: ListChevronsUpDown, href: '/vehicle/read', badge: null },
   { name: 'Mensajes', icon: MessageSquare, href: '/mensajes', badge: '3' },
   { name: 'Mi Cuenta', icon: User, href: '/cuenta', badge: null },
 ];

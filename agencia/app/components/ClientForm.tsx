@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Home, MapPin, Mail, Phone, Calendar, Hash, CreditCard, CheckCircle2, AlertCircle, ArrowRight, Users } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { User, Home, MapPin, Mail, Phone, Calendar, Hash, CheckCircle2, AlertCircle, ArrowRight, Users, IdCard } from 'lucide-react';
 
 const maritalStatuses = [
-  'Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión Civil'
+  'Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a'
 ];
 
 export default function ClientForm() {
@@ -24,9 +24,15 @@ export default function ClientForm() {
     estado_civil: maritalStatuses[0],
   });
 
+// Definición de tipos para las respuestas de la API
+type Province = { nombre: string; };
+type Locality = { nombre: string; };
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [focusedField, setFocusedField] = useState('');
+
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -40,6 +46,12 @@ export default function ClientForm() {
     e.preventDefault();
     setMessage({ type: '', text: '' });
     setLoading(true);
+
+    const finalFormData = {
+      ...formData,
+      provincia: query, 
+      localidad: queryLocalidad, 
+    };
 
     try {
       const response = await fetch('/api/clients', {
@@ -71,6 +83,9 @@ export default function ClientForm() {
           mail: '', 
           estado_civil: maritalStatuses[0],
         });
+        setQuery(''); // Limpiar provincia
+        setQueryLocalidad(''); // Limpiar localidad
+        setLocalidades([]);
       } else {
         setMessage({ 
           type: 'error', 
@@ -87,6 +102,12 @@ export default function ClientForm() {
     }
   };
 
+  const handleLocalitySelection = useCallback((loc: string) => {
+    setQueryLocalidad(loc);
+    setFormData(prev => ({ ...prev, localidad: loc }));
+    setShowLocalidades(false);
+  }, []);
+
   // Calcular progreso
   const totalFields = 13;
   const filledFields = Object.entries(formData).filter(([key, value]) => {
@@ -94,6 +115,86 @@ export default function ClientForm() {
     return value !== '';
   }).length;
   const progressPercent = (filledFields / totalFields) * 100;
+
+  const [query, setQuery] = useState("");
+  const [provincias, setProvincias] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [showList, setShowList] = useState(false);
+
+  const [localidades, setLocalidades] = useState<string[]>([]);
+  const [queryLocalidad, setQueryLocalidad] = useState("");
+  const [filteredLocalidades, setFilteredLocalidades] = useState<string[]>([]);
+  const [showLocalidades, setShowLocalidades] = useState(false);
+
+  
+
+
+  useEffect(() => {
+    // API de provincias argentinas (exactamente la que te pasé antes)
+    fetch("https://apis.datos.gob.ar/georef/api/provincias")
+      .then(res => res.json())
+      .then(data => {
+        const lista = data.provincias.map((p: { nombre: any; }) => p.nombre);
+        setProvincias(lista);
+        setFiltered(lista);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (query.trim() === "") {
+      setFiltered(provincias);  // mostrar todas
+    } else {
+      setFiltered(
+        provincias.filter((prov : string) =>
+          prov.toLowerCase().includes(query.toLowerCase())
+        )
+      );
+    }
+  }, [query, provincias]);
+
+  
+
+ useEffect(() => {
+    if (queryLocalidad.trim() === "") {
+    setFilteredLocalidades(localidades);
+    } else {
+    const newFiltered = localidades.filter((loc: string) =>
+      loc.toLowerCase().includes(queryLocalidad.toLowerCase())
+    );
+    setFilteredLocalidades(newFiltered);
+    }
+ }, [queryLocalidad, localidades]);
+
+ // Función para manejar la selección de provincia
+ const handleProvinceSelection = useCallback(async (provincia: string) => {
+    // 1. Actualizar estado de Provincia
+    setQuery(provincia);
+    setFormData(prev => ({ ...prev, provincia: provincia }));
+    setShowList(false);
+
+    // 2. Limpiar estados de Localidad al cambiar la provincia (CRUCIAL para el bug)
+    setQueryLocalidad('');
+    setFormData(prev => ({ ...prev, localidad: '' }));
+    
+    // 3. Fetch de localidades
+    try {
+    const res = await fetch(
+      `https://apis.datos.gob.ar/georef/api/localidades?provincia=${provincia}&max=500&orden=nombre` // Agregué orden por nombre
+    );
+
+    const data = await res.json();
+    const uniqueLocalities = new Set((data.localidades as Locality[]).map((l) => l.nombre));
+    const listaLoc = Array.from(uniqueLocalities).sort() as string[];
+
+    // 4. Setear la nueva lista maestra y la lista filtrada inicial
+    setLocalidades(listaLoc);
+    setFilteredLocalidades(listaLoc);
+    } catch (e) {
+    console.error("Error fetching localities:", e);
+    setLocalidades([]);
+    setFilteredLocalidades([]);
+    }
+ }, []);
 
   return (
     <div className="flex gap-8 h-full">
@@ -141,7 +242,7 @@ export default function ClientForm() {
             </div>
             <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200">
               <div className="flex items-center space-x-3">
-                <CreditCard className="w-5 h-5 text-red-600" />
+                <IdCard className="w-5 h-5 text-red-600" />
                 <span className="text-sm font-semibold text-gray-900">Documentación</span>
               </div>
               <span className="text-xs font-bold text-gray-600">3 campos</span>
@@ -274,7 +375,7 @@ export default function ClientForm() {
             <div className="mb-8">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-red-600" />
+                  <IdCard className="w-5 h-5 text-red-600" />
                 </div>
                 <h3 className="text-xl font-black text-gray-900">Documentación</h3>
               </div>
@@ -287,7 +388,7 @@ export default function ClientForm() {
                     <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
                       focusedField === 'tipo_dni' ? 'text-red-600 scale-110' : 'text-gray-400'
                     }`}>
-                      <CreditCard className="w-5 h-5" />
+                      <IdCard className="w-5 h-5" />
                     </div>
                     <select
                       name="tipo_dni"
@@ -338,7 +439,7 @@ export default function ClientForm() {
                     <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
                       focusedField === 'cuil' ? 'text-red-600 scale-110' : 'text-gray-400'
                     }`}>
-                      <CreditCard className="w-5 h-5" />
+                      <IdCard className="w-5 h-5" />
                     </div>
                     <input
                       type="text"
@@ -484,6 +585,53 @@ export default function ClientForm() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
+                  {/* Provincia */}
+                  <div className="group">
+                    <label className="block text-sm font-bold text-gray-900 mb-3">Provincia</label>
+                    <div className="relative">
+                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                      focusedField === 'provincia' ? 'text-red-600 scale-110' : 'text-gray-400'
+                      }`}>
+                      <MapPin className="w-5 h-5" />
+                      </div>
+                      <input
+                      type="text"
+                      name="provincia"
+                      value={query}
+                      onChange={e => {
+                        setQuery(e.target.value);
+                        setShowList(true);
+                        // Limpiar localidades si el usuario empieza a escribir de nuevo
+                        if (e.target.value !== formData.provincia) {
+                        setQueryLocalidad('');
+                        setFormData(prev => ({ ...prev, localidad: '', provincia: e.target.value }));
+                        }
+                      }}
+                      onFocus={() => { setFocusedField('provincia'); setShowList(true); }}
+                      onBlur={() => { setFocusedField(''); setTimeout(() => setShowList(false), 200); }}
+                      placeholder="Provincia"
+                      required
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      />
+                      {showList && filtered.length > 0 && (
+                      <ul className="absolute z-20 bg-white w-full border border-gray-300 rounded-xl mt-2 max-h-52 overflow-y-auto shadow-xl">
+                        {filtered.map((provincia) => (
+                        <li
+                          key={provincia}
+                          className="p-3 cursor-pointer hover:bg-red-50 text-gray-800 transition-colors"
+                          onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleProvinceSelection(provincia);
+                          }}
+                        >
+                          {provincia}
+                        </li>
+                        ))}
+                      </ul>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Localidad */}
                   <div className="group">
                     <label className="block text-sm font-bold text-gray-900 mb-3">Localidad</label>
@@ -493,48 +641,45 @@ export default function ClientForm() {
                       }`}>
                         <MapPin className="w-5 h-5" />
                       </div>
-                      <input
-                        type="text"
-                        name="localidad"
-                        value={formData.localidad}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('localidad')}
-                        onBlur={() => setFocusedField('')}
-                        placeholder="Ciudad"
-                        required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                      />
-                      {formData.localidad && (
+
+                    <input
+                    type="text"
+                    name="localidad"
+                    value={queryLocalidad}
+                    onChange={(e) => {
+                      setQueryLocalidad(e.target.value);
+                      setShowLocalidades(true);
+                    }}
+                    onFocus={() => { setFocusedField('localidad'); setShowLocalidades(true); }}
+                    onBlur={() => { setFocusedField(''); setTimeout(() => setShowLocalidades(false), 200); }}
+                    placeholder={localidades.length > 0 ? "Localidad" : "Selecciona una provincia primero"}
+                    required
+                    disabled={localidades.length === 0}
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                    />
+                    {formData.localidad && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
                       )}
-                    </div>
+
+                    {showLocalidades && filteredLocalidades.length > 0 && (
+                    <ul className="absolute z-20 bg-white w-full border border-gray-300 rounded-xl mt-2 max-h-52 overflow-y-auto shadow-xl">
+                      {filteredLocalidades.map((loc) => (
+                      <li
+                        key={loc}
+                        className="p-3 cursor-pointer hover:bg-red-50 text-gray-800 transition-colors"
+                        onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleLocalitySelection(loc);
+                        }}
+                      >
+                        {loc}
+                      </li>
+                      ))}
+                    </ul>
+                    )}
+                  </div>
                   </div>
 
-                  {/* Provincia */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-gray-900 mb-3">Provincia</label>
-                    <div className="relative">
-                      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                        focusedField === 'provincia' ? 'text-red-600 scale-110' : 'text-gray-400'
-                      }`}>
-                        <MapPin className="w-5 h-5" />
-                      </div>
-                      <input
-                        type="text"
-                        name="provincia"
-                        value={formData.provincia}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('provincia')}
-                        onBlur={() => setFocusedField('')}
-                        placeholder="Buenos Aires"
-                        required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
-                      />
-                      {formData.provincia && (
-                        <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
-                      )}
-                    </div>
-                  </div>
 
                   {/* Código Postal */}
                   <div className="group">
