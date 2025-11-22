@@ -1,5 +1,5 @@
-import VehicleForm from "./vehiculo/create/VehicleForm";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <VehicleForm />;
+  redirect("/vehicle/create");
 }
