@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, Menu, Search, CreditCard, MessageSquare, User, UserPlus, ListChevronsUpDown, BadgeDollarSign} from "lucide-react";
+import { Car, Menu, Search, HandCoins , User, UserPlus, ListChevronsUpDown, BadgeDollarSign} from "lucide-react";
 import { act } from "react";
 
 const navigationItems = [
@@ -11,7 +11,7 @@ const navigationItems = [
   { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
   { name: 'Tabla Vehiculos', icon: ListChevronsUpDown, href: '/vehicle/read', badge: null },
   { name: 'Realizar Venta', icon: BadgeDollarSign, href: '/sale/create', badge: null },
-  { name: 'Mi Cuenta', icon: User, href: '/cuenta', badge: null },
+  { name: 'Tabla Ventas', icon: HandCoins, href: '/sale/read', badge: null },
 ];
 
 export default function Sidebar() {
@@ -50,7 +50,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-3">
         {navigationItems.map((item) => {
           const active = pathname.startsWith(item.href);
 
@@ -58,10 +58,10 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+              className={`flex items-center space-x-3 px-4 py-3 rounded-xl border-2 border-transparent transform hover:scale-105 transition-all  duration-400 group ${
                 active
-                  ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
-                  : "text-gray-700 hover:bg-red-200"
+                  ? " bg-red-600 text-white shadow-lg shadow-red-600/30"
+                  : "text-gray-700 hover:border-red-600 hover:border-2"
               }`}
             >
               <item.icon className="w-5 h-5" />

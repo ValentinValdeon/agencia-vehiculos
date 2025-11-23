@@ -9,10 +9,11 @@ export default function VehicleTableModal() {
     const [filterCondicion, setFilterCondicion] = useState("TODOS");
     const [selectedVehiculo, setSelectedVehiculo] = useState<any>(null);
 
+
     useEffect(() => {
         async function fetchVehiculos() {
             try {
-                const response = await fetch('/api/vehiculos',{
+                const response = await fetch('/api/vehicles',{
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -68,7 +69,7 @@ export default function VehicleTableModal() {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Ej: ABC123, Toyota, Corolla..."
-                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
                             />
                         </div>
                     </div>
@@ -83,7 +84,7 @@ export default function VehicleTableModal() {
                             <select
                                 value={filterCondicion}
                                 onChange={(e) => setFilterCondicion(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
                             >
                                 <option value="TODOS">Todos</option>
                                 <option value="NUEVO">Nuevos</option>
@@ -284,30 +285,32 @@ export default function VehicleTableModal() {
                             </div>
 
                             {/* Documentación */}
-                            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                                <h4 className="text-lg font-black text-gray-900 mb-4">DOCUMENTACIÓN Y VERIFICACIONES</h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {[
-                                        { label: 'Cédula Verde/Azul', value: selectedVehiculo.check_cedula },
-                                        { label: 'Info de Dominio', value: selectedVehiculo.check_info_dominio },
-                                        { label: 'Info de Multas', value: selectedVehiculo.check_info_multa },
-                                        { label: 'Título de Propiedad', value: selectedVehiculo.check_titulo },
-                                        { label: 'Formulario 08', value: selectedVehiculo.check_08 },
-                                        { label: 'Libre Deuda', value: selectedVehiculo.check_libre_deuda },
-                                        { label: 'Peritaje', value: selectedVehiculo.check_peritaje },
-                                        { label: 'Consignación', value: selectedVehiculo.check_consignacion },
-                                    ].map((item) => (
-                                        <div key={item.label} className="flex items-center justify-between p-3 bg-white rounded-xl">
-                                            <span className="text-sm font-semibold text-gray-700">{item.label}</span>
-                                            {item.value ? (
-                                                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                                            ) : (
-                                                <XCircle className="w-5 h-5 text-gray-300" />
-                                            )}
-                                        </div>
-                                    ))}
+                            {selectedVehiculo.condicion === 'USADO' && (
+                                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                                    <h4 className="text-lg font-black text-gray-900 mb-4">DOCUMENTACIÓN Y VERIFICACIONES</h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {[
+                                            { label: 'Cédula Verde/Azul', value: selectedVehiculo.check_cedula },
+                                            { label: 'Info de Dominio', value: selectedVehiculo.check_info_dominio },
+                                            { label: 'Info de Multas', value: selectedVehiculo.check_info_multa },
+                                            { label: 'Título de Propiedad', value: selectedVehiculo.check_titulo },
+                                            { label: 'Formulario 08', value: selectedVehiculo.check_08 },
+                                            { label: 'Libre Deuda', value: selectedVehiculo.check_libre_deuda },
+                                            { label: 'Peritaje', value: selectedVehiculo.check_peritaje },
+                                            { label: 'Consignación', value: selectedVehiculo.check_consignacion },
+                                        ].map((item) => (
+                                            <div key={item.label} className="flex items-center justify-between p-3 bg-white rounded-xl">
+                                                <span className="text-sm font-semibold text-gray-700">{item.label}</span>
+                                                {item.value ? (
+                                                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                                ) : (
+                                                    <XCircle className="w-5 h-5 text-gray-300" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         {/* Modal Footer */}

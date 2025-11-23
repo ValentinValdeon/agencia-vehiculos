@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Car, DollarSign, Calendar, FileText, CheckCircle2, AlertCircle, ArrowRight, CreditCard, Banknote, Building2, Plus, X } from 'lucide-react';
+import { User, Car, DollarSign, Calendar, FileText, CheckCircle2, AlertCircle, ArrowRight, CreditCard, Plus, X } from 'lucide-react';
 
 export default function SaleForm() {
   const [clientes, setClientes] = useState([]);
@@ -39,6 +39,14 @@ export default function SaleForm() {
       firmante: ''
     }
   });
+
+  const [metodosActivos, setMetodosActivos] = useState({
+    cheques: false,
+    financiacion: false,
+    usado: false,
+    documento: false
+  });
+
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -168,7 +176,7 @@ export default function SaleForm() {
   return (
     <div className="flex gap-8 h-full">
       {/* Left Side */}
-      <div className="w-96 flex flex-col justify-between">
+      <div className="w-96 flex flex-col gap-20">
         <div>
           <div className="mb-8">
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-red-50 rounded-full mb-4 animate-fade-in">
@@ -195,6 +203,9 @@ export default function SaleForm() {
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+              {filledFields === totalFields ? '¡Listo para enviar!' : `Faltan ${totalFields - filledFields} campos obligatorios`}
+            </p>
           </div>
         </div>
 
@@ -246,7 +257,7 @@ export default function SaleForm() {
                       onBlur={() => setTimeout(() => setFocusedField(''), 200)}
                       placeholder="Buscar cliente por DNI..."
                       required={!formData.cliente_id}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                     />
                     {formData.cliente_id && (
                       <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in z-10" />
@@ -314,7 +325,7 @@ export default function SaleForm() {
                       onBlur={() => setTimeout(() => setFocusedField(''), 200)}
                       placeholder="Buscar vehículo por dominio o VIN..."
                       required={!formData.vehiculo_id}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                     />
                     {formData.vehiculo_id && (
                       <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in z-10" />
@@ -390,7 +401,7 @@ export default function SaleForm() {
                       required
                       step="0.01"
                       min="0"
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                     />
                     {formData.precio_total && (
                       <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -417,7 +428,7 @@ export default function SaleForm() {
                       onFocus={() => setFocusedField('fecha')}
                       onBlur={() => setFocusedField('')}
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                     />
                   </div>
                 </div>
@@ -431,7 +442,7 @@ export default function SaleForm() {
                     onChange={handleChange}
                     placeholder="Notas adicionales sobre la venta..."
                     rows={3}
-                    className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                    className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                   />
                 </div>
               </div>
@@ -443,10 +454,44 @@ export default function SaleForm() {
                 <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-red-600" />
                 </div>
-                <h3 className="text-xl font-black text-gray-900">Métodos de Pago</h3>
+                <h3 className="text-xl font-black text-gray-900">Seleccionar métodos de Pago</h3>
               </div>
+              
+              <div className="mb-6 bg-gray-100 p-4 rounded-xl border border-gray-300">
+                <div className="grid grid-cols-2 gap-3 text-sm">
 
+                  {[
+                    { key: "cheques", label: "Cheques" },
+                    { key: "financiacion", label: "Financiación" },
+                    { key: "usado", label: "Vehículo Usado" },
+                    { key: "documento", label: "Documento" }
+                  ].map((item) => (
+                    <label
+                      key={item.key}
+                      className="flex items-center space-x-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-red-300 cursor-pointer transition-all group"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={metodosActivos[item.key as keyof typeof metodosActivos]}
+                        onChange={(e) =>
+                          setMetodosActivos((prev) => ({
+                            ...prev,
+                            [item.key]: e.target.checked
+                          }))
+                        }
+                        className="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                      />
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                        {item.label}
+                      </span>
+                    </label>
+                  ))}
+
+                </div>
+              </div>
+              
               {/* Cheques */}
+              {metodosActivos.cheques && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-bold text-gray-900">Cheques</h4>
@@ -512,8 +557,10 @@ export default function SaleForm() {
                   </div>
                 ))}
               </div>
+              )}
 
               {/* Financiación */}
+              {metodosActivos.financiacion && (
               <div className="mb-6 bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
                 <h4 className="text-sm font-bold text-blue-900 mb-4">Financiación Bancaria</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -559,8 +606,10 @@ export default function SaleForm() {
                   />
                 </div>
               </div>
+              )}
 
               {/* Usado (Permuta) */}
+              {metodosActivos.usado && (
               <div className="mb-6 bg-green-50 rounded-2xl p-6 border-2 border-green-200">
                 <h4 className="text-sm font-bold text-green-900 mb-4">Vehículo Usado (Permuta)</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -616,8 +665,10 @@ export default function SaleForm() {
                   />
                 </div>
               </div>
+              )}
 
               {/* Documento */}
+              {metodosActivos.documento && (
               <div className="bg-purple-50 rounded-2xl p-6 border-2 border-purple-200">
                 <h4 className="text-sm font-bold text-purple-900 mb-4">Pago con Documento</h4>
                 <div className="grid grid-cols-3 gap-4">
@@ -641,20 +692,10 @@ export default function SaleForm() {
                     }))}
                     className="px-4 py-3 bg-white border-2 border-purple-200 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-600"
                   />
-                  {/* <input
-                    type="text"
-                    placeholder="Firmante"
-                    value={pagos.documento.firmante}
-                    onChange={(e) => setPagos(prev => ({
-                      ...prev,
-                      documento: { ...prev.documento, firmante: e.target.value }
-                    }))}
-                    className="px-4 py-3 bg-white border-2 border-purple-200 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-600"
-                  /> */}
                 </div>
               </div>
+              )}
             </div>
-
             {/* Message */}
             {message.text && (
               <div className={`p-5 rounded-2xl flex items-start space-x-3 animate-slide-up ${

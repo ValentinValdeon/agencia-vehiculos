@@ -31,10 +31,9 @@ export default function SaleTable() {
     const filteredVentas = ventas.filter((venta: any) => {
         const searchLower = searchTerm.toLowerCase();
         return (
-            venta.cliente_nombre?.toLowerCase().includes(searchLower) ||
-            venta.vehiculo_marca?.toLowerCase().includes(searchLower) ||
-            venta.vehiculo_modelo?.toLowerCase().includes(searchLower) ||
-            venta.id?.toString().includes(searchLower)
+            venta.cliente_dni?.toString().includes(searchLower) ||
+            venta.vehiculo_patente?.toLowerCase().includes(searchLower) ||
+            venta.vehiculo_vin?.toLowerCase().includes(searchLower)
         );
     });
 
@@ -48,16 +47,12 @@ export default function SaleTable() {
                         Total: <span className="font-bold text-red-600">{filteredVentas.length}</span> ventas
                     </p>
                 </div>
-                <div className="flex items-center space-x-2 px-4 py-2 bg-red-50 rounded-full">
-                    <DollarSign className="w-5 h-5 text-red-600" />
-                    <span className="text-sm font-semibold text-red-600">FRAN MOTORS</span>
-                </div>
             </div>
 
             {/* Search */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Buscar por Cliente, Vehículo o ID de Venta
+                    Buscar por DNI, Dominio o VIN
                 </label>
                 <div className="relative">
                     <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -65,8 +60,8 @@ export default function SaleTable() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Ej: Juan Pérez, Toyota, #123..."
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+                        placeholder=""
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all"
                     />
                 </div>
             </div>
@@ -77,7 +72,6 @@ export default function SaleTable() {
                     <table className="w-full">
                         <thead>
                             <tr className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-                                <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">ID</th>
                                 <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Fecha</th>
                                 <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Cliente</th>
                                 <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Vehículo</th>
@@ -108,9 +102,6 @@ export default function SaleTable() {
                                             index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                                         }`}
                                     >
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="font-bold text-gray-900">#{venta.id}</span>
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                                             {new Date(venta.fecha).toLocaleDateString('es-AR')}
                                         </td>
@@ -224,9 +215,7 @@ export default function SaleTable() {
         <CreditCard className="w-5 h-5 mr-2 text-red-600" />
         Métodos de Pago
     </h4>
-
     <div className="space-y-4">
-
         {/* Cheques */}
         {selectedVenta?.pagos?.cheques?.length > 0 && (
             <div className="bg-white rounded-xl p-5 border border-gray-200">

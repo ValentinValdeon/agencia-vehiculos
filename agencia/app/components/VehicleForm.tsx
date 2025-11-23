@@ -53,7 +53,7 @@ export default function VehicleForm() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('/api/vehiculos', {
+      const response = await fetch('/api/vehicles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function VehicleForm() {
   return (
     <div className="flex gap-8 h-full">
       {/* Left Side - Header & Info */}
-      <div className="w-96 flex flex-col justify-between">
+      <div className="w-96 flex flex-col gap-20">
         <div>
           <div className="mb-8">
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-red-50 rounded-full mb-4 animate-fade-in">
@@ -240,7 +240,7 @@ export default function VehicleForm() {
                         onBlur={() => setFocusedField('')}
                         placeholder="Ej: Toyota"
                         required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.marca && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -269,7 +269,7 @@ export default function VehicleForm() {
                         onBlur={() => setFocusedField('')}
                         placeholder="Ej: Corolla"
                         required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.modelo && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -300,7 +300,7 @@ export default function VehicleForm() {
                         required
                         min="1900"
                         max="2099"
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.anio && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -329,7 +329,7 @@ export default function VehicleForm() {
                         onBlur={() => setFocusedField('')}
                         placeholder="Ej: Blanco Perlado"
                         required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.color && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -360,7 +360,7 @@ export default function VehicleForm() {
                         required
                         step="0.01"
                         min="0"
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.precio && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -401,7 +401,7 @@ export default function VehicleForm() {
                         onBlur={() => setFocusedField('')}
                         placeholder="1HGBH41JXMN109186"
                         required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.vin && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
@@ -429,7 +429,7 @@ export default function VehicleForm() {
                         onFocus={() => setFocusedField('numero_motor')}
                         onBlur={() => setFocusedField('')}
                         placeholder="Opcional"
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                     </div>
                   </div>
@@ -454,7 +454,7 @@ export default function VehicleForm() {
                         onFocus={() => setFocusedField('numero_chasis')}
                         onBlur={() => setFocusedField('')}
                         placeholder="Opcional"
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 focus:bg-white transition-all duration-300 hover:border-gray-300"
                       />
                     </div>
                   </div>
@@ -492,7 +492,7 @@ export default function VehicleForm() {
                         onBlur={() => setFocusedField('')}
                         placeholder="ABC123"
                         required={isUsado}
-                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-base font-medium focus:outline-none focus:border-red-600 transition-all duration-300 hover:border-gray-300"
+                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-500 font-medium focus:outline-none focus:border-red-600 transition-all duration-300 hover:border-gray-300"
                       />
                       {formData.dominio && (
                         <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-4 top-1/2 -translate-y-1/2 animate-scale-in" />
