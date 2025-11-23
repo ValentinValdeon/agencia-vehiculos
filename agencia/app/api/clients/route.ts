@@ -62,3 +62,16 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const [rows] = await pool.query("SELECT * FROM client ORDER BY id DESC");
+    return NextResponse.json(rows);
+  } catch (error: any) {
+    console.error("Error al obtener clientes:", error);
+    return NextResponse.json(
+      { error: "Error al obtener clientes" },
+      { status: 500 }
+    );
+  }
+}

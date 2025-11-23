@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, Menu, Search, CreditCard, MessageSquare, User, UserPlus, ListChevronsUpDown} from "lucide-react";
+import { Car, Menu, Search, CreditCard, MessageSquare, User, UserPlus, ListChevronsUpDown, BadgeDollarSign} from "lucide-react";
 import { act } from "react";
 
 const navigationItems = [
@@ -10,7 +10,7 @@ const navigationItems = [
   { name: 'Ingresar Cliente', icon: UserPlus, href: '/client/create', badge: null },
   { name: 'Catálogo', icon: Car, href: '/catalogo', badge: '24' },
   { name: 'Tabla Vehiculos', icon: ListChevronsUpDown, href: '/vehicle/read', badge: null },
-  { name: 'Mensajes', icon: MessageSquare, href: '/mensajes', badge: '3' },
+  { name: 'Realizar Venta', icon: BadgeDollarSign, href: '/sale/create', badge: null },
   { name: 'Mi Cuenta', icon: User, href: '/cuenta', badge: null },
 ];
 
